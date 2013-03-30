@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}DBStats {{ server.name }}{% endblock %}
+
+{% block body_container %}
+    <h3>Servers and databases being monitored</h3>
+    {% for server in servers %}
+        <table class="table table-hover table-condensed">
+            <tr>
+                <th>Server</th>
+                <th>Status</th>
+                <th>CPU Utilization</th>
+                <th>Memory Utilization</th>
+            </tr>
+            <tr>
+                <td rowspan="{{ server.database_count }}">{{ server.host }}:{{ server.port }}</td>
+                <td colspan="3">last contact: 4 hours ago!</td>
+            </tr>
+            <tr>
+                <th>Database</th>
+                <th>Activity</th>
+            </tr>
+            {% for database in server.database_set.all %}
+                <tr>
+                    <td>{{ database.name }}</td>
+                    <td><a href="/dbstats/activity/{{ database.id }}/">123 statements/second</a></td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endfor %}
+{% endblock %}

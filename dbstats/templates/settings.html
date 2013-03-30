@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}DBStats {{ server.name }}{% endblock %}
+
+{% block body_container %}
+    <h3>{{ server.host }}:{{ server.port }} Settings</h3>
+    <table class="table table-hover table-condensed">
+        <tr>
+            <th>Setting</th>
+            <th>Default</th>
+            <th>Value</th>
+            <th>Description</th>
+        </tr>
+        {% for setting in server.settings %}
+            <tr>
+                <td>{{ setting.name }}</td>
+                <td>{{ setting.default }}</td>
+                <td>{{ setting.override }}</td>
+                <td>{{ setting.description }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

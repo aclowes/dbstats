@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}DBStats {{ server.name }}{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+
+  </style>
+{% endblock %}
+
+{% block body_container %}
+  <h3>Activity on {{ database.server }}/{{ database.name }}</h3>
+
+  <div class="row-fluid" id="graph"></div>
+
+  <table class="table table-hover table-condensed">
+    <tr>
+      <th>Occurances</th>
+      <th>Statement</th>
+      <th>Duration</th>
+    </tr>
+    {% for query in queries %}
+      <tr>
+        <td>{{ query.num_queries }}</td>
+        <td><a href="/dbstats/explain/{{ query.id }}/">{{ query }}</a></td>
+        <td>{{ query.avg_duration }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+{% endblock %}
+
+{% block extra_js %}
+  <script type="text/javascript">
+    (function () {
+
+      var margin = {top:20, right:20, bottom:30, left:50},
+          width = 960 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+
+      var color = d3.scale.category20();
+
+      var x = d3.time.scale()
+          .range([0, width]);
+
+      var y = d3.scale.linear()
+          .range([height, 0]);
+
+      var xAxis = d3.svg.axis()
+          .scale(x)
+          .orient("bottom");
+
+      var yAxis = d3.svg.axis()
+          .scale(y)
+          .orient("left");
+
+      var area = d3.svg.area()
+          .x(function (d) {
+            return x(d.start);
+          })
+          .y0(function (d) {
+            return y(d.y0);
+          })
+          .y1(function (d) {
+            return y(d.y0 + d.y);
+          });
+
+      var stack = d3.layout.stack()
+          .values(function (d) {
+            return d.values;
+          });
+
+      var svg = d3.select("#graph").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      $.getJSON('graph/', function (data) {
+
+        color.domain(d3.keys(data[0]).filter(function (key) {
+          return key !== "start";
+        }));
+
+        data.forEach(function (d) {
+          d.start = new Date(d.start);
+        });
+
+        var queries = stack(color.domain().map(function (name) {
+          return {
+            name:name,
+            values:data.map(function (d) {
+              return {start:d.start, y:d[name]};
+            })
+          };
+        }));
+
+        x.domain(d3.extent(data, function (d) {
+          return d.start;
+        }));
+
+        var query = svg.selectAll(".query")
+            .data(queries)
+            .enter().append("g")
+            .attr("class", "query");
+
+        query.append("path")
+            .attr("class", "area")
+            .attr("d", function (d) {
+              return area(d.values);
+            })
+            .style("fill", function (d) {
+              return color(d.name);
+            });
+
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
+
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis);
+      });
+
+    })();
+  </script>
+{% endblock %}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}DB Stats{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ STATIC_URL }}img/favicon.ico">
+    <style type="text/css">
+        body {
+            padding-top: 60px;
+            padding-bottom: 40px;
+        }
+    </style>
+
+
+</head>
+<body>
+{% block body %}
+    <!-- The nav bar at the top -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container-fluid">
+                <a class="brand" href="/dbstats/">DBStats</a>
+                <ul class="nav">
+                    <li class="{% if page == 'home' %}active{% endif %}">
+                        <a href="/dbstats/">Home</a></li>
+                    <li {% if page == 'activity' %}class="active"{% endif %}>
+                        <a href="/dbstats/activity/">Activity</a></li>
+                    <li {% if page == 'explain' %}class="active"{% endif %}>
+                        <a href="/dbstats/explain/">Explain</a></li>
+                    <li {% if page == 'settings' %}class="active"{% endif %}>
+                        <a href="/dbstats/settings/">Settings</a></li>
+                </ul>
+                <ul class="nav pull-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Server: {{ server.name }} <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            {% for other in others %}
+                            <li><a href="#">{{ other.name }}</a></li>
+                            {% endfor %}
+                            <li><a href="#">Another action</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% firstof user.get_full_name user %} <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/logout/">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        {#  The Django messages framework - bootstrap only handles info, error, success #}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+
+        {% block body_container %}{% endblock %}
+    </div>
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!--[if lt IE 9]>
+    <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script src=" {{ STATIC_URL }}js/jquery.min.js"></script>
+    <script src=" {{ STATIC_URL }}js/bootstrap.min.js"></script>
+    <script src=" {{ STATIC_URL }}js/d3.v2.min.js"></script>
+    {% block extra_js %}{% endblock %}
+{% endblock %}
+</body>
+</html>

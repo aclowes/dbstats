@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}DBStats {{ server.name }}{% endblock %}
+
+{% block body_container %}
+    <h3>Explain Plan on {{ server }}</h3>
+    <h4>Query</h4>
+    <pre>{{ statement.statement }}</pre>
+    <h4>Explain Plan</h4>
+    <pre>{{ statement.explain }}</pre>
+{% endblock %}
