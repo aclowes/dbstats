@@ -7,8 +7,8 @@ from django.db.models import Count, Avg
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 
-from dbstats.databases import get_wrapper
 from dbstats.models import Server, Database, SqlStatement, SqlActivity
+
 
 def home(request):
     servers = Server.objects.all()
@@ -90,8 +90,7 @@ def activity_graph(request, database_id):
 def explain(request, statement_id):
     statement = get_object_or_404(SqlStatement, id=statement_id)
     server = statement.database.server
-    server.type = 'postgres'
-    statement.explain = get_wrapper(server).explain(statement.statement)
+    statement.explain = server.get_backend().explain(statement.statement)
     return render(request, 'explain.html', {
         'page': 'explain',
         'user': request.user,
@@ -102,8 +101,7 @@ def explain(request, statement_id):
 
 def settings(request, server_id=None):
     server = get_object_or_404(Server, id=server_id)
-    server.type = 'postgres'
-    server.settings = get_wrapper(server).get_settings()
+    server.settings = server.get_backend().get_settings()
 
     return render(request, 'settings.html', {
         'page': 'activity',

@@ -2,4 +2,7 @@
 .idea/*
 
 # sqlite
-#*.sqlite
+*.sqlite
+
+# python compiled files
+*.pyc

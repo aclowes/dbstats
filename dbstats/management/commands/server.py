@@ -13,6 +13,7 @@ from dbstats.models import Server, Database, SqlStatement, SqlActivity
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('dbstats.server')
 
+
 class Command(BaseCommand):
 #    args = '<arg>'
     help = 'Run server to receive log files'
@@ -52,10 +53,10 @@ class Command(BaseCommand):
         try:
             for logline in stats['statements']:
                 logger.debug(u'    %s' % logline)
-                hash = hashlib.md5(logline['statement']).hexdigest()
+                hashed = hashlib.md5(logline['statement']).hexdigest()
                 database, created = Database.objects.get_or_create(server=server, name=logline['database'])
-                statement, created = SqlStatement.objects.get_or_create(database=database, hash=hash,
-                    defaults=dict(statement=logline['statement']))
+                statement, created = SqlStatement.objects.get_or_create(
+                    database=database, hashed=hashed, defaults=dict(statement=logline['statement']))
                 # 2012-10-30 16:46:11.354 EDT but django expects six millisecond places
                 start = datetime.strptime(logline['log_time'][:-4] + '000', '%Y-%m-%d %H:%M:%S.%f')
                 start = start.replace(tzinfo=pytz.timezone(logline['log_time'][-3:]))
